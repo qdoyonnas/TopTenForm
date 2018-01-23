@@ -1,0 +1,22 @@
+{
+  "name": "toptenform",
+  "version": "1.0.0",
+  "description": "Node + Express simple html server",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qdoyonnas/TopTenForm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qdoyonnas/TopTenForm/issues"
+  },
+  "homepage": "https://github.com/qdoyonnas/TopTenForm#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
