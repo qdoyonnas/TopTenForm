@@ -29,8 +29,6 @@ app.post("/new-entry", function(request, response) {
 		return;
 	}
 	
-	console.log(request);
-	
 	entries.push({
 		title: request.body.title,
 		body: request.body.body,
