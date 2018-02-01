@@ -8,6 +8,7 @@
 					<%= entry.published %>
 				</div>
 				<%= entry.title %>
+				<a href="/" onclick="DeleteEntry()" data-id="<%= entry.id %>">(delete)</a>
 			</div>
 			<div class="panel-body">
 				<%= entry.body %>

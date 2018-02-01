@@ -1,37 +1,89 @@
+// Require Modules
 var http = require("http");
 var path = require("path");
 var express = require("express");
+var session = require("express-session");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
+var cookieParser = require("cookie-parser");
 var mongoClient = require("mongodb");
+var passport = require("passport");
+var LocalStrategy = require("passport-local").Strategy;
 
-var url = "mongodb://localhost:27017/";
+// Browser App Setup
 var app = express();
 var port = 3000;
-mongoClient.connect(url);
 
+// Mongo Connection Setup
+var url = "mongodb://localhost:27017/";
+var dbName = "languages";
+var db;
+mongoClient.connect(url, function(error, client) {
+	if( error ) { throw error; }
+	
+	console.log("Connected to MongoDb");
+	db = client.db(dbName);
+});
+
+// App View Engine
 app.set('views', path.resolve(__dirname, 'src/views'));
 app.set('view engine', 'ejs');
 
-
-
+// App modules
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(cookieParser());
+app.use(session( {
+	secret: "secretSession",
+	resave: true,
+	saveUninitialized: true
+	}
+));
+app.use(passport.initialize());
+app.use(passport.session());
 
+// User Authentication Setup
+passport.serializeUser(function(user, done) {
+	done(null, user);
+});
+passport.deserializeUser(function(user, done) {
+	done(null, user);
+});
+passport.use(new LocalStrategy({
+	usernameField: "",
+	passwordField: ""
+	},
+	function(username, password, done) {
+		var user = {
+			username: username,
+			password: password
+		};
+		done(null, user);
+	}
+));
+
+// Methods
+function DeleteEntry() {
+	console.log("Deleting Entry");
+}
+
+// Routes
 app.get("/", function(request, response) {
-	mongoClient.connect(url, function(error, mongodb) {
+	db.collection("languages").find().toArray(function(error, results) {
 		if( error ) { throw error; }
-		
-		var db = mongodb.db("languages");
-		db.collection("languages").find().toArray(function(error, results) {
-			if( error ) { throw error; }
-			mongodb.close();
-			response.render("index", {entries: results});
-		});
+		response.render("index", {entries: results});
 	});
 });
 app.get("/new-entry", function(request, response) {
 	response.render("new-entry");
+});
+
+app.get("/delete-entry", function(request, response) {
+	response.render("delete-entry");
+});
+
+app.get("/sign-in", function(request, response) {
+	response.render("sign-in");
 });
 
 app.post("/new-entry", function(request, response) {
@@ -40,30 +92,50 @@ app.post("/new-entry", function(request, response) {
 		return;
 	}
 	
-	mongoClient.connect(url, function(error, mongodb) {
+	request.body.published = new Date();
+	db.collection(dbName).save(request.body, function(error, result) {
 		if( error ) { throw error; }
-		
-		var db = mongodb.db("languages");
-		db.collection("languages").save(request.body, function(error, result) {
-			if( error ) { throw error; }
-			console.log("data saved");
-			mongodb.close();
-			response.redirect("/");
-		});
+		console.log("data saved");
+		response.redirect("/");
+	});
+});
+
+app.post("/delete-entry", function(request, response) {
+	db.collection(dbName).deleteMany(request.body, function(error, result) {
+		if( error ) { throw error; }
+		console.log("Entries Deleted");
+		response.redirect("/");
+	});
+});
+
+app.post("/sign-up", function(request, response) {
+	
+	db.collection("users").save(request.body, function(error, result) {
+		if( error ) { throw error; }
+		console.log("User Saved");
 	});
 	
-	/*entries.push({
-		title: request.body.title,
-		body: request.body.body,
-		published: new Date()
+	request.login(request.body, function() {
+		response.redirect("profile");
 	});
-	response.redirect("/");*/
+});
+
+app.post("/sign-in", passport.authenticate("local", {
+	failureRedirect:"/sign-in"
+	}), function(request, response) {
+			response.redirect("profile");
+	}
+);
+
+app.get("/profile", function(request, response) {
+	response.json(request.user);
 });
 
 app.use(function(request, response) {
 	response.status(404).render("404");
 });
 
+// Start local Server
 http.createServer(app).listen(port, function() {
 	console.log("Server listening on port " + port);
 });
