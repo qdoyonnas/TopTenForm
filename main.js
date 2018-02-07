@@ -49,26 +49,39 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
 	done(null, user);
 });
-passport.use(new LocalStrategy({
+passport.use(new LocalStrategy(
+	{
 	usernameField: "",
 	passwordField: ""
 	},
 	function(username, password, done) {
-		var user = {
-			username: username,
-			password: password
-		};
-		done(null, user);
+		db.collection("users").findOne({username:username}, function(error, result) {
+			if( result.password === password ) {
+				var user = result;
+				done(null, user);
+			} else {
+				done(null, false, {message:"Incorrect Password"});
+			}
+		});
 	}
 ));
 
 // Methods
+function EnsureAuthenticated(request, response, next) {
+	if( request.isAuthenticated() ) {
+		next();
+	}
+	else {
+		response.redirect("/sign-in");
+	}
+}
+
 function DeleteEntry() {
 	console.log("Deleting Entry");
 }
 
 // Routes
-app.get("/", function(request, response) {
+app.get("/", EnsureAuthenticated, function(request, response) {
 	db.collection("languages").find().toArray(function(error, results) {
 		if( error ) { throw error; }
 		response.render("index", {entries: results});
@@ -84,6 +97,11 @@ app.get("/delete-entry", function(request, response) {
 
 app.get("/sign-in", function(request, response) {
 	response.render("sign-in");
+});
+
+app.get("/logout", function(request, response) {
+	request.logout();
+	response.redirect("sign-in");
 });
 
 app.post("/new-entry", function(request, response) {
@@ -116,14 +134,14 @@ app.post("/sign-up", function(request, response) {
 	});
 	
 	request.login(request.body, function() {
-		response.redirect("profile");
+		response.redirect("/sign-in");
 	});
 });
 
 app.post("/sign-in", passport.authenticate("local", {
 	failureRedirect:"/sign-in"
 	}), function(request, response) {
-			response.redirect("profile");
+			response.redirect("/");
 	}
 );
 
