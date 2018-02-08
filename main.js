@@ -25,6 +25,9 @@ mongoClient.connect(url, function(error, client) {
 	db = client.db(dbName);
 });
 
+// Style
+app.use(express.static(path.resolve(__dirname, "src/css")));
+
 // App View Engine
 app.set('views', path.resolve(__dirname, 'src/views'));
 app.set('view engine', 'ejs');
@@ -97,6 +100,10 @@ app.get("/delete-entry", function(request, response) {
 
 app.get("/sign-in", function(request, response) {
 	response.render("sign-in");
+});
+
+app.get("/sign-up", function(request, response) {
+	response.render("sign-up");
 });
 
 app.get("/logout", function(request, response) {

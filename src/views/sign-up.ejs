@@ -1,16 +1,15 @@
 <% include header %>
 
-<h2>Sign In</h2>
-
+<h2>Register</h2>
 <div class="form-group">
-	<form name="signInForm" action="sign-in" method="post" class="form-group">
+	<form name="signUpForm" action="sign-up" method="post" class="form-group">
 		<label for="username">Username:</label>
 		<input name="username" placeholder="Enter Username" class="form-control" width="200"></br>
 		<label for="password">Password:</label>
 		<input name="password" placeholder="Create Password" class="form-control" width="200"></br>
-		<input type="submit" id="signIn" value="Sign In" class="btn btn-primary">
-		<a href="sign-up" class="btn">Register</a>
+		<input type="submit" id="signUp" value="Register" class="btn btn-primary">
+		<a href="sign-in" class="btn">Back</a>
 	</form>
 </div>
-	
+
 <% include footer %>
