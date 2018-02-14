@@ -15,7 +15,7 @@ var app = express();
 var port = 3000;
 
 // Mongo Connection Setup
-var url = "mongodb://localhost:27017/";
+var url = "mongodb://qdoyonnas:abc123@ds027809.mlab.com:27809/languages";
 var dbName = "languages";
 var db;
 mongoClient.connect(url, function(error, client) {
@@ -161,6 +161,6 @@ app.use(function(request, response) {
 });
 
 // Start local Server
-http.createServer(app).listen(port, function() {
+app.listen(port, function() {
 	console.log("Server listening on port " + port);
 });
