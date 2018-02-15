@@ -79,10 +79,6 @@ function EnsureAuthenticated(request, response, next) {
 	}
 }
 
-function DeleteEntry() {
-	console.log("Deleting Entry");
-}
-
 // Routes
 app.get("/", EnsureAuthenticated, function(request, response) {
 	db.collection("languages").find().toArray(function(error, results) {
@@ -95,7 +91,16 @@ app.get("/new-entry", function(request, response) {
 });
 
 app.get("/delete-entry", function(request, response) {
-	response.render("delete-entry");
+	if( request.query ) {
+		var requestId = {_id: mongoClient.ObjectID(request.query.id)};
+		db.collection(dbName).deleteOne(requestId, function(error, result) {
+			if( error ) { throw error; }
+			//console.log("data deleted: " + result);
+			response.redirect("/");
+		});
+	} else {
+		response.render("delete-entry");
+	}
 });
 
 app.get("/sign-in", function(request, response) {
