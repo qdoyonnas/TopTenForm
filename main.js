@@ -91,7 +91,7 @@ app.get("/new-entry", function(request, response) {
 });
 
 app.get("/delete-entry", function(request, response) {
-	if( request.query ) {
+	if( request.query.id ) {
 		var requestId = {_id: mongoClient.ObjectID(request.query.id)};
 		db.collection(dbName).deleteOne(requestId, function(error, result) {
 			if( error ) { throw error; }
